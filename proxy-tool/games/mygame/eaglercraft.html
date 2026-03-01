@@ -1,0 +1,208 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft - Game Hub</title>
+  <link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="../index.html">Game Hub</a>
+  </header>
+
+  <main class="page">
+    <section class="main-game">
+      <h1 class="section-title">Minecraft</h1>
+      <div class="game-shell">
+        <div class="frame-wrap">
+          <iframe
+            class="game-frame"
+            src="../EaglercraftX_1.8_u53_Offline_Signed.html"
+            title="Minecraft"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+            allow="fullscreen; autoplay"
+          ></iframe>
+        </div>
+
+        <div class="action-row">
+          <button class="btn" id="fullscreenBtn" type="button">Fullscreen</button>
+        </div>
+
+        <p class="helper">Tip: Open fullscreen mode for a bigger play area.</p>
+      </div>
+    </section>
+
+    <section class="more">
+      <h2 class="section-title">More Games</h2>
+      <p class="status" id="statusText" aria-live="polite"></p>
+      <div id="gameGrid" class="game-grid"></div>
+    </section>
+  </main>
+
+  <template id="gameCardTemplate">
+    <a class="game-card" href="#">
+      <div class="game-thumb">
+        <img src="" alt="">
+        <span class="play-badge">PLAY</span>
+      </div>
+      <h3 class="game-title"></h3>
+    </a>
+  </template>
+
+  <div class="modal" id="fsModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close="true"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true">
+      <div class="modal-bar">
+        <div class="modal-title" id="modalTitle">Press ESC to exit</div>
+      </div>
+      <button class="modal-close" id="modalClose" type="button">✕</button>
+      <iframe class="modal-frame" id="modalFrame" src="" title="Minecraft"></iframe>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const GAME_URL = "../EaglercraftX_1.8_u53_Offline_Signed.html";
+      const CURRENT_GAME_KEY = "mygame/eaglercraft.html";
+
+      const fullscreenBtn = document.getElementById("fullscreenBtn");
+      const fsModal = document.getElementById("fsModal");
+      const modalFrame = document.getElementById("modalFrame");
+      const modalClose = document.getElementById("modalClose");
+
+      const gameGrid = document.getElementById("gameGrid");
+      const statusText = document.getElementById("statusText");
+      const template = document.getElementById("gameCardTemplate");
+
+      function normalizePath(value) {
+        return String(value || "").replace(/^\.\//, "").replace(/^\.\.\//, "").toLowerCase();
+      }
+
+      function toLocalHref(href) {
+        if (!href) {
+          return "#";
+        }
+
+        if (/^https?:\/\//i.test(href) || href.startsWith("../")) {
+          return href;
+        }
+
+        return "../" + href.replace(/^\.\//, "");
+      }
+
+      function openModal() {
+        modalFrame.src = GAME_URL;
+        fsModal.classList.add("is-open");
+        fsModal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        fsModal.classList.remove("is-open");
+        fsModal.setAttribute("aria-hidden", "true");
+        modalFrame.src = "";
+        document.body.style.overflow = "";
+      }
+
+      function renderGames(games) {
+        gameGrid.innerHTML = "";
+
+        for (const game of games) {
+          const fragment = template.content.cloneNode(true);
+          const card = fragment.querySelector(".game-card");
+          const image = fragment.querySelector("img");
+          const title = fragment.querySelector(".game-title");
+
+          card.href = toLocalHref(game.href);
+          image.src = toLocalHref(game.cover);
+          image.alt = game.title || "Game";
+          title.textContent = game.title || "Untitled";
+
+          gameGrid.appendChild(fragment);
+        }
+      }
+
+      function fallbackGames() {
+        return [
+          {
+            title: "Placeholder Quest",
+            href: "../mygame/placeholder1.html",
+            cover: "../assets/cover/placeholder1.jpg"
+          },
+          {
+            title: "Pixel Racers",
+            href: "../mygame/placeholder2.html",
+            cover: "../assets/cover/placeholder2.jpg"
+          },
+          {
+            title: "Sky Arena",
+            href: "../mygame/placeholder3.html",
+            cover: "../assets/cover/placeholder3.jpg"
+          },
+          {
+            title: "Jungle Dash",
+            href: "../mygame/placeholder4.html",
+            cover: "../assets/cover/placeholder4.jpg"
+          }
+        ];
+      }
+
+      async function loadMoreGames() {
+        try {
+          statusText.textContent = "Loading games...";
+          const response = await fetch("../assets/data/games.json", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error("Failed to load games.json: " + response.status);
+          }
+
+          const data = await response.json();
+          let list = [];
+
+          if (Array.isArray(data)) {
+            list = data;
+          } else {
+            if (data && data.featured) {
+              list.push(data.featured);
+            }
+            if (data && Array.isArray(data.games)) {
+              list = list.concat(data.games);
+            }
+          }
+
+          const filtered = list.filter(function (game) {
+            return normalizePath(game.href) !== CURRENT_GAME_KEY;
+          });
+
+          renderGames(filtered);
+          statusText.textContent = filtered.length ? "" : "No games found.";
+        } catch (error) {
+          console.error(error);
+          const fallback = fallbackGames();
+          renderGames(fallback);
+          statusText.textContent = "";
+        }
+      }
+
+      fullscreenBtn.addEventListener("click", openModal);
+      modalClose.addEventListener("click", closeModal);
+
+      fsModal.addEventListener("click", function (event) {
+        const target = event.target;
+        if (target && target.getAttribute("data-close") === "true") {
+          closeModal();
+        }
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && fsModal.classList.contains("is-open")) {
+          closeModal();
+        }
+      });
+
+      loadMoreGames();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+﻿{
+    "featured":  null,
+    "games":  [
+                  {
+                      "title":  "Five Nights At Epsteins",
+                      "href":  "mygame/fivenightsatepsteins.html",
+                      "cover":  "assets/cover/FNAEcover.jpg",
+                      "tags":  [
+                                   "horror",
+                                   "survival",
+                                   "indie"
+                               ]
+                  },
+                  {
+                      "title":  "Minecraft",
+                      "href":  "mygame/minecraft.html",
+                      "cover":  "assets/cover/minecraftcover.png",
+                      "tags":  [
+                                   "minecraft",
+                                   "sandbox",
+                                   "offline"
+                               ]
+                  },
+                  {
+                      "title":  "Sky Arena",
+                      "href":  "mygame/placeholder3.html",
+                      "cover":  "assets/cover/placeholder3.jpg",
+                      "tags":  [
+                                   "action",
+                                   "shooter"
+                               ]
+                  },
+                  {
+                      "title":  "Jungle Dash",
+                      "href":  "mygame/placeholder4.html",
+                      "cover":  "assets/cover/placeholder4.jpg",
+                      "tags":  [
+                                   "runner",
+                                   "arcade"
+                               ]
+                  },
+                  {
+                      "title":  "Puzzle Pop",
+                      "href":  "mygame/placeholder5.html",
+                      "cover":  "assets/cover/placeholder5.jpg",
+                      "tags":  [
+                                   "puzzle",
+                                   "casual"
+                               ]
+                  },
+                  {
+                      "title":  "Neon Strikers",
+                      "href":  "mygame/placeholder6.html",
+                      "cover":  "assets/cover/placeholder6.jpg",
+                      "tags":  [
+                                   "sports",
+                                   "multiplayer"
+                               ]
+                  }
+              ]
+}
